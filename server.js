@@ -19,14 +19,15 @@ const connectToServer = async () => {
             }
         )
 
-        db.run(
-            ` 
-          create table if not exists employee(
-            id interger primary key,
-            salary text
-          )
-        `
-        )
+        await db.run(`
+      CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        priority TEXT,
+        dueDate TEXT,
+        createdAt TEXT
+      );
+    `);
         app.listen(4000, () => {
             console.log("App running success")
         })
@@ -39,16 +40,15 @@ const connectToServer = async () => {
 }
 
 
-app.get("/task/sort",async(req,res)=>{
-    const query=`select * from tasks`
-    const response=await db.all(query)
+app.get("/task/sort", async (req, res) => {
+    const query = `select * from tasks`
+    const response = await db.all(query)
 
-    response.sort((a,b)=>{
-        const order={"High":1,"Medium":2,"Low":3}
+    response.sort((a, b) => {
+        const order = { "High": 1, "Medium": 2, "Low": 3 }
 
-        if (order[a.priority]!==order[b.priority])
-        {
-            return order[a.priority]-order[b.priority]
+        if (order[a.priority] !== order[b.priority]) {
+            return order[a.priority] - order[b.priority]
         }
     })
 
@@ -104,26 +104,25 @@ app.put("/task/:id", async (req, res) => {
 
 })
 
-app.get("/task/:id",async(req,res)=>{
-    let {id} =req.params
+app.get("/task/:id", async (req, res) => {
+    let { id } = req.params
     id = parseInt(id)
 
-    const query=`select * from tasks`
-    const response=await db.all(query)
-    const taskById=response.filter(i=>i.id===id)
-    if (taskById.length===0)
-    {
+    const query = `select * from tasks`
+    const response = await db.all(query)
+    const taskById = response.filter(i => i.id === id)
+    if (taskById.length === 0) {
         res.status(400).json("Task not found")
     }
     console.log(taskById)
     res.json(taskById)
 })
 
-app.delete("/task/:id",async(req,res)=>{
-    let {id}=req.params
-    id=parseInt(id)
-    const query=
-    `
+app.delete("/task/:id", async (req, res) => {
+    let { id } = req.params
+    id = parseInt(id)
+    const query =
+        `
       delete from tasks where id=${id}
     `
 
